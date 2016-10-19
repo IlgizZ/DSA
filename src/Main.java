@@ -1,18 +1,36 @@
-/**
- * Created by Ilgiz on 27.09.2016.
- */
-public class Main {
-    public static void main(String[] args) {
-        RBTree<Character, Integer> rbTree = new RBTree();
-        char c = 'n';
+/* while (!(x.equals(root)) && x.color == Color.BLACK){
+        if (x.equals(x.parent.left)){
+        Node uncle = x.parent.right;
 
-        for (int i = 0; i < 10; i++) {
-            rbTree.insert(c, i);
-            c--;
+        if (uncle.color == Color.RED){
+        uncle.setColor(Color.BLACK);
+        x.parent.setColor(Color.RED);
+        leftRotate(x.parent);
+        uncle = x.parent.right;
         }
 
-        rbTree.traverse((character, integer) -> {
-            System.out.println(character + ":" + integer);
-        });
-    }
-}
+        if (uncle.left.color == Color.BLACK && uncle.right.color == Color.BLACK){
+        uncle.setColor(Color.RED);
+        x = x.parent;
+        } else {
+        //rigth nil ??
+        if (uncle.right.color == Color.BLACK){
+        uncle.left.setColor(Color.BLACK);
+        uncle.setColor(Color.RED);
+        rightRotate(uncle);
+        uncle = x.parent.right;
+        }
+        uncle.setColor(x.parent.color);
+        x.parent.setColor(Color.BLACK);
+        uncle.right.setColor(Color.BLACK);
+        leftRotate(x.parent);
+        x = root;
+        }
+
+        } else {
+
+        }
+        }
+
+        x.color = Color.BLACK;
+        }*/

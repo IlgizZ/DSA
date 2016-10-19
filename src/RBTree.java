@@ -91,6 +91,12 @@ public class RBTree<K extends Comparable, V> {
         return !node.equals(nil);
     }
 
+    /**
+     * Search node with key K from @param node
+     * @param node from node
+     * @param key
+     * @return node with key key or null otherwise
+     */
     private Node search(Node node, K key) {
         while (notNull(node)) {
             int comp = compareTo(key, node.key);
@@ -107,18 +113,33 @@ public class RBTree<K extends Comparable, V> {
         return null;
     }
 
+    /**
+     * Search min node from @param node
+     * @param node from node
+     * @return min node with
+     */
     private Node min(Node node) {
         while (notNull(node.left))
             node = node.left;
         return node;
     }
 
+    /**
+     * Search max node from @param node
+     * @param node from node
+     * @return max node
+     */
     private Node max(Node node) {
         while (notNull(node.right))
             node = node.right;
         return node;
     }
 
+    /**
+     * Search previous node of @param node
+     * @param node
+     * @return previous node or null otherwise
+     */
     private Node predecessor(Node node) {
         if (notNull(node.left))
             return max(node.left);
@@ -132,6 +153,11 @@ public class RBTree<K extends Comparable, V> {
         return parent;
     }
 
+    /**
+     * Search next node after @param node
+     * @param node
+     * @return next node or null otherwise
+     */
     private Node successor(Node node) {
         if (notNull(node.right))
             return min(node.right);
@@ -182,7 +208,7 @@ public class RBTree<K extends Comparable, V> {
         } else if (node.parent.right.equals(node)) {
             node.parent.setRight(leftChild);
         } else {
-            node.parent.setRight(leftChild);
+            node.parent.setLeft(leftChild);
         }
 
         leftChild.setRight(node);
@@ -285,13 +311,135 @@ public class RBTree<K extends Comparable, V> {
         root.setColor(Color.BLACK);
     }
 
+    private void transplant(Node node1, Node node2){
+        Node parent1 = node1.parent;
+
+        if (parent1.equals(nil))
+            root = node2;
+        else if (node1.equals(parent1.left))
+            parent1.left = node2;
+        else
+            parent1.right = node2;
+
+        node2.parent = parent1;
+    }
+
     public V insert(K key, V value) {
         Node node = new Node(key, value);
         return insert(node);
     }
 
     public V delete(K key) {
-        return null;
+        Node node = search(root, key);
+        V result = node.value;
+
+        if (node.equals(nil))
+            return null;
+
+        delete(node);
+
+        return result;
+    }
+
+    private void delete(Node node) {
+        Node replacement = node;
+        Color replacementColor = node.color;
+        Node replacementChild = nil;
+
+        if (node.left.equals(nil)){
+            replacementChild = node.right;
+            transplant(node, replacementChild);
+        } else if (node.right.equals(nil)){
+            replacementChild = node.left;
+            transplant(node, replacementChild);
+        } else {
+            replacement = successor(node);
+            replacementColor = replacement.color;
+            replacementChild = replacement.right;
+
+            if (replacement.parent.equals(node)){
+            //???
+                System.out.println(replacementChild.parent.value + " ?= " + replacement.value);
+                replacementChild.parent = replacement;
+            } else {
+                transplant(replacement, replacementChild);
+                replacement.right = node.right;
+                replacement.right.parent = replacement;
+            }
+
+            transplant(node, replacement);
+            replacement.left = node.left;
+            replacement.left.parent = replacement;
+            replacement.color = node.color;
+        }
+        if (replacementColor == Color.RED)
+            deleteFixUp(replacementChild);
+
+    }
+
+    private void deleteFixUp(Node x) {
+        while (!(x.equals(root)) && x.color == Color.BLACK){
+            if (x.equals(x.parent.left)){
+                Node bro = x.parent.right;
+
+                if (bro.color == Color.RED){
+                    bro.setColor(Color.BLACK);
+                    x.parent.setColor(Color.RED);
+                    leftRotate(x.parent);
+                    bro = x.parent.right;
+                }
+
+                if (bro.left.color == Color.BLACK && bro.right.color == Color.BLACK){
+                    bro.setColor(Color.RED);
+                    x = x.parent;
+                } else {
+                    //rigth nil ??
+                    if (bro.right.color == Color.BLACK){
+                        bro.left.setColor(Color.BLACK);
+                        bro.setColor(Color.RED);
+                        rightRotate(bro);
+                        bro = x.parent.right;
+                    }
+                    bro.setColor(x.parent.color);
+                    x.parent.setColor(Color.BLACK);
+                    bro.right.setColor(Color.BLACK);
+                    leftRotate(x.parent);
+                    x = root;
+                }
+
+            } else {
+
+                Node bro = x.parent.left;
+
+                if (bro.color == Color.RED){
+                    bro.setColor(Color.BLACK);
+                    x.parent.setColor(Color.RED);
+                    leftRotate(x.parent);
+                    bro = x.parent.right;
+                }
+
+                if (bro.left.color == Color.BLACK && bro.right.color == Color.BLACK){
+                    bro.setColor(Color.RED);
+                    x = x.parent;
+                } else {
+                    //rigth nil ??
+                    if (bro.right.color == Color.BLACK){
+                        bro.left.setColor(Color.BLACK);
+                        bro.setColor(Color.RED);
+                        rightRotate(bro);
+                        bro = x.parent.right;
+                    }
+                    bro.setColor(x.parent.color);
+                    x.parent.setColor(Color.BLACK);
+                    bro.right.setColor(Color.BLACK);
+                    leftRotate(x.parent);
+                    x = root;
+                }
+
+            }
+        }
+
+        x.color = Color.BLACK;
     }
 
     public void traverse(java.util.function.BiConsumer<K, V> visitor) {
@@ -304,7 +452,23 @@ public class RBTree<K extends Comparable, V> {
     }
 
     public void traverse(java.util.function.BiConsumer visitor, K from, K to) {
+        if (root.equals(nil))
+            return;
 
+        Node start = search(root, from);
+        Node end = search(root, to);
+
+        if (start.equals(nil))
+            throw new RuntimeException("Node with key " + from + " not found.");
+        if (end.equals(nil))
+            throw new RuntimeException("Node with key " + to + " not found.");
+
+        while (!start.equals(end)){
+            visitor.accept(start.key, start.value);
+            start = successor(start);
+        }
+
+        visitor.accept(end.key, end.value);
     }
 
 }
