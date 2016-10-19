@@ -1,36 +1,54 @@
-/* while (!(x.equals(root)) && x.color == Color.BLACK){
-        if (x.equals(x.parent.left)){
-        Node uncle = x.parent.right;
+import java.util.ArrayList;
+import java.util.List;
 
-        if (uncle.color == Color.RED){
-        uncle.setColor(Color.BLACK);
-        x.parent.setColor(Color.RED);
-        leftRotate(x.parent);
-        uncle = x.parent.right;
-        }
-
-        if (uncle.left.color == Color.BLACK && uncle.right.color == Color.BLACK){
-        uncle.setColor(Color.RED);
-        x = x.parent;
-        } else {
-        //rigth nil ??
-        if (uncle.right.color == Color.BLACK){
-        uncle.left.setColor(Color.BLACK);
-        uncle.setColor(Color.RED);
-        rightRotate(uncle);
-        uncle = x.parent.right;
-        }
-        uncle.setColor(x.parent.color);
-        x.parent.setColor(Color.BLACK);
-        uncle.right.setColor(Color.BLACK);
-        leftRotate(x.parent);
-        x = root;
-        }
-
-        } else {
+/**
+ * Created by Ilgiz on 27.09.2016.
+ */
+public class Main {
+    public static void main(String[] args) {
+        RBTree<Character, Integer> rbTree = new RBTree();
+        int diff = 'z' - 'a' + 1;
+        char a = 'a';
+        List<Character> alphabet = new ArrayList();
+        for (char i = 'a'; i <= 'z' ; i++) {
+            alphabet.add(i);
 
         }
+
+
+        while (!alphabet.isEmpty()){
+            char rand = (char)(a + (char)(diff * Math.random()));
+
+            while (!alphabet.contains(rand))
+                rand = (char)(a + (char)(diff * Math.random()));
+
+            rbTree.insert(rand, (int)(100000 * Math.random()));
+
+            alphabet.remove(new Character(rand));
         }
 
-        x.color = Color.BLACK;
-        }*/
+//        System.out.println(rbTree.size());
+
+//        rbTree.traverse((character, integer) -> {
+//            System.out.println(character + ":" + integer);
+//        });
+
+//        rbTree.delete('f');
+//        for (char c : new char[]{'k', 's', 'b', 't', 'a', 'h', 'x', 'j'}) {
+//            rbTree.delete(c);
+//        }
+
+        while (!rbTree.isEmpty()){
+            char rand = (char)(a + (char)(diff * Math.random()));
+
+            while (rbTree.contains(rand) == null)
+                rand = (char)(a + (char)(diff * Math.random()));
+
+            System.out.println(rbTree.size() + " deliting " + rand);
+            rbTree.delete(rand);
+        }
+
+
+
+    }
+}

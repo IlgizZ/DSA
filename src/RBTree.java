@@ -81,6 +81,7 @@ public class RBTree<K extends Comparable, V> {
 
     private Node nil;
     private Node root;
+    private int size;
 
     public RBTree() {
         nil = new Node(null, null, Color.BLACK);
@@ -110,7 +111,7 @@ public class RBTree<K extends Comparable, V> {
                     node = node.right;
             }
         }
-        return null;
+        return node;
     }
 
     /**
@@ -250,6 +251,7 @@ public class RBTree<K extends Comparable, V> {
             }
         }
 
+        size++;
         node.setParent(parent);
 
         if (parent.equals(nil))
@@ -324,23 +326,6 @@ public class RBTree<K extends Comparable, V> {
         node2.parent = parent1;
     }
 
-    public V insert(K key, V value) {
-        Node node = new Node(key, value);
-        return insert(node);
-    }
-
-    public V delete(K key) {
-        Node node = search(root, key);
-        V result = node.value;
-
-        if (node.equals(nil))
-            return null;
-
-        delete(node);
-
-        return result;
-    }
-
     private void delete(Node node) {
         Node replacement = node;
         Color replacementColor = node.color;
@@ -358,8 +343,6 @@ public class RBTree<K extends Comparable, V> {
             replacementChild = replacement.right;
 
             if (replacement.parent.equals(node)){
-            //???
-                System.out.println(replacementChild.parent.value + " ?= " + replacement.value);
                 replacementChild.parent = replacement;
             } else {
                 transplant(replacement, replacementChild);
@@ -372,9 +355,11 @@ public class RBTree<K extends Comparable, V> {
             replacement.left.parent = replacement;
             replacement.color = node.color;
         }
-        if (replacementColor == Color.RED)
+        if (replacementColor == Color.BLACK)
             deleteFixUp(replacementChild);
 
+        if (replacementChild.equals(nil))
+            nil.setParent(null);
     }
 
     private void deleteFixUp(Node x) {
@@ -393,7 +378,6 @@ public class RBTree<K extends Comparable, V> {
                     bro.setColor(Color.RED);
                     x = x.parent;
                 } else {
-                    //rigth nil ??
                     if (bro.right.color == Color.BLACK){
                         bro.left.setColor(Color.BLACK);
                         bro.setColor(Color.RED);
@@ -414,25 +398,25 @@ public class RBTree<K extends Comparable, V> {
                 if (bro.color == Color.RED){
                     bro.setColor(Color.BLACK);
                     x.parent.setColor(Color.RED);
-                    leftRotate(x.parent);
-                    bro = x.parent.right;
+                    rightRotate(x.parent);
+                    bro = x.parent.left;
                 }
 
-                if (bro.left.color == Color.BLACK && bro.right.color == Color.BLACK){
+                if (bro.right.color == Color.BLACK && bro.left.color == Color.BLACK ){
                     bro.setColor(Color.RED);
                     x = x.parent;
                 } else {
-                    //rigth nil ??
-                    if (bro.right.color == Color.BLACK){
-                        bro.left.setColor(Color.BLACK);
+                    //right eq nil ??
+                    if (bro.left.color == Color.BLACK){
+                        bro.right.setColor(Color.BLACK);
                         bro.setColor(Color.RED);
-                        rightRotate(bro);
-                        bro = x.parent.right;
+                        leftRotate(bro);
+                        bro = x.parent.left;
                     }
                     bro.setColor(x.parent.color);
                     x.parent.setColor(Color.BLACK);
-                    bro.right.setColor(Color.BLACK);
-                    leftRotate(x.parent);
+                    bro.left.setColor(Color.BLACK);
+                    rightRotate(x.parent);
                     x = root;
                 }
 
@@ -440,6 +424,39 @@ public class RBTree<K extends Comparable, V> {
         }
 
         x.color = Color.BLACK;
+    }
+
+    public boolean isEmpty(){
+        return size == 0;
+    }
+
+    public int size(){
+        return size;
+    }
+
+    public V contains(K key){
+        Node node = search(root, key);
+
+        return node.equals(nil) ? null : node.value;
+    }
+
+    public V insert(K key, V value) {
+        Node node = new Node(key, value);
+        return insert(node);
+    }
+
+    public V delete(K key) {
+        Node node = search(root, key);
+        V result = node.value;
+
+        if (node.equals(nil))
+            return null;
+
+        delete(node);
+
+        size--;
+
+        return result;
     }
 
     public void traverse(java.util.function.BiConsumer<K, V> visitor) {
