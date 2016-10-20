@@ -1,10 +1,12 @@
+package charCounter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Ilgiz on 27.09.2016.
  */
-public class Main {
+public class RandomTree {
     public static void main(String[] args) {
         RBTree<Character, Integer> rbTree = new RBTree();
         int diff = 'z' - 'a' + 1;

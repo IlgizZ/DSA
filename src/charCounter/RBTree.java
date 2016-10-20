@@ -1,3 +1,5 @@
+package charCounter;
+
 /**
  * Created by Ilgiz on 17.10.2016.
  */
